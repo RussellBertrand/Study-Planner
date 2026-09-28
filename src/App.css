@@ -1,0 +1,56 @@
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  font-family: system-ui, sans-serif;
+}
+
+.form-page form {
+  display: grid;
+  gap: 8px;
+}
+
+.form-page input,
+.form-page select {
+  padding: 8px;
+  font-size: 1rem;
+}
+
+.form-page button {
+  margin-top: 8px;
+  padding: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Pesan error di atas form */
+.form-error {
+  padding: 10px 12px;
+  background: #fdecea;
+  border-left: 4px solid #c62828;
+  color: #8e1b1b;
+}
+
+.dashboard ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.task {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-left-width: 6px;
+}
+
+.priority-high { border-left-color: #c62828; }
+.priority-medium { border-left-color: #f9a825; }
+.priority-low { border-left-color: #2e7d32; }
+
+.badge {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
