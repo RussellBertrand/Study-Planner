@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { users } from './data/users';
 import { initialTasks } from './data/tasks';
+import './App.css';
 
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import FormPage from './pages/FormPage';
-import OutputPage from './pages/OutputPage';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -14,6 +14,10 @@ function App() {
 
   const handleAddTask = (newTask) => {
     setTasks((prevTasks) => [...prevTasks, { ...newTask, id: Date.now() }]);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
   };
 
   return (
@@ -28,7 +32,11 @@ function App() {
           path="/dashboard" 
           element={
             currentUser ? (
-              <DashboardPage currentUser={currentUser} tasks={tasks} />
+              <DashboardPage 
+                currentUser={currentUser} 
+                tasks={tasks} 
+                onLogout={handleLogout} 
+              />
             ) : (
               <Navigate to="/login" replace />
             )
@@ -39,18 +47,12 @@ function App() {
           path="/form" 
           element={
             currentUser && currentUser.role === 'client' ? (
-              <FormPage onAddTask={handleAddTask} studentName={currentUser.name} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          } 
-        />
-
-        <Route 
-          path="/output" 
-          element={
-            currentUser ? (
-              <OutputPage tasks={tasks} currentUser={currentUser} />
+              <FormPage 
+                onAddTask={handleAddTask} 
+                studentName={currentUser.name}
+                currentUser={currentUser}
+                onLogout={handleLogout}
+              />
             ) : (
               <Navigate to="/login" replace />
             )

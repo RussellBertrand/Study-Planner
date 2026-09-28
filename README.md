@@ -1,4 +1,4 @@
-# Study Planner (JoyVis)
+# Study Planner 
 
 **Kelompok 4** — Proyek UTS Web Development
 
@@ -10,7 +10,7 @@ Aplikasi web perencana belajar berbasis **React (Vite)** yang membantu siswa men
 
 ## Deskripsi Singkat
 
-Study Planner (JoyVis) memungkinkan pengguna mencatat tugas belajar lengkap dengan mata kuliah, deadline, dan tingkat prioritas. Data dikelola dengan *State Lifting* di React sehingga form input dan halaman output/dashboard selalu sinkron. Aplikasi memiliki dua peran pengguna dengan hak akses berbeda.
+Study Planner memungkinkan pengguna mencatat tugas belajar lengkap dengan mata kuliah, deadline, dan tingkat prioritas. Data dikelola dengan *State Lifting* di React sehingga form input dan halaman output/dashboard selalu sinkron. Aplikasi memiliki dua peran pengguna dengan hak akses berbeda.
 
 ## Fitur Utama
 
