@@ -4,7 +4,7 @@
 
 Aplikasi web perencana belajar berbasis **React (Vite)** yang membantu siswa mengelola tugas dan jadwal belajar, sekaligus memungkinkan mentor/advisor memantau dan mendampingi progres siswa.
 
-🔗 **Demo:** `https://<username-github>.github.io/study-planner/`
+🔗 **Demo:** `https://RussellBertrand.github.io/study-planner/`
 
 ---
 
@@ -83,7 +83,7 @@ study-planner/
 ├── README.md
 ├── vite.config.js
 ├── public/
-│   └── (favicon / aset gambar publik jika ada)
+│   └── vite.svg
 └── src/
     ├── App.jsx
     ├── App.css
