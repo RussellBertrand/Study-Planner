@@ -76,6 +76,7 @@ Setelah itu, di GitHub buka **Settings → Pages**, pilih **Source: Deploy from 
 
 ```
 study-planner/
+├── nodemodules
 ├── .gitignore
 ├── index.html
 ├── package.json
