@@ -11,7 +11,6 @@ Aplikasi manajemen tugas belajar cerdas yang menghubungkan **Mahasiswa/Siswa** d
 |---|---|---|
 | **Jason Benaia Hamonangan Simanjuntak** | 01881250045 | Web Admin Frontend |
 | **Joy Cristian Sinaga** | 01881250048 | Backend & Database Architect |
-| **Daniel Xavier Christian Perangin-Angin Sinurat** | 01881250013 | Mobile App Frontend & UI Design |
 | **Russell Betrand Victorio Pakpahan** | 01881250053 | System Integration & Deployment |
 
 ---
