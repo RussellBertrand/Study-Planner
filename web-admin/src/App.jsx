@@ -3,7 +3,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { api, getAuthToken, setAuthToken, getStoredUser, setStoredUser } from './api';
 import './App.css';
 
-import HomePage from './pages/homePage';
+import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import FormPage from './pages/FormPage';
