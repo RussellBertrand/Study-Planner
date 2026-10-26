@@ -5,6 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // WAJIB untuk GitHub Pages: harus sama persis dengan nama repositori.
-  // Tanpa ini, file JS/CSS akan dicari di "/" dan halaman menjadi blank (404).
-  base: '/study-planner/',
+  // URL: https://RussellBertrand.github.io/Study-Planner/
+  base: '/Study-Planner/',
 })
