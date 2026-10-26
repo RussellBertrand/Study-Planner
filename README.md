@@ -4,11 +4,10 @@ Sistem Manajemen & Perencanaan Belajar Siswa berbasis Web Admin, Backend API, da
 
 ---
 
-## 👥 Tim Pengembang (Kelompok 4)
+## 👥 Tim Pengembang (Kelompok 3)
 
 - **Jason Benaia Hamonangan Simanjuntak** — 01881250045
 - **Joy Cristian Sinaga** — 01881250048
-- **Daniel Xavier Christian Perangin-Angin Sinurat** — 01881250013
 - **Russell Betrand Victorio Pakpahan** — 01881250053
 
 ---
