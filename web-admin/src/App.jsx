@@ -7,6 +7,11 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import FormPage from './pages/FormPage';
+import CoursesPage from './pages/CoursesPage';
+import GamificationPage from './pages/GamificationPage';
+import PomodoroPage from './pages/PomodoroPage';
+import AcademicPage from './pages/AcademicPage';
+import TaskBoardPage from './pages/TaskBoardPage';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(() => getStoredUser());
@@ -74,6 +79,52 @@ function App() {
           element={<HomePage currentUser={currentUser} onLogout={handleLogout} />}
         />
 
+        {/* Halaman Katalog Kursus (Katalog Terstruktur) */}
+        <Route
+          path="/courses"
+          element={<CoursesPage currentUser={currentUser} onLogout={handleLogout} />}
+        />
+        <Route path="/katalog" element={<Navigate to="/courses" replace />} />
+        <Route path="/katalog-kursus" element={<Navigate to="/courses" replace />} />
+
+        {/* Halaman Sistem Belajar & Gamifikasi Adaptif */}
+        <Route
+          path="/gamification"
+          element={<GamificationPage currentUser={currentUser} onLogout={handleLogout} />}
+        />
+        <Route path="/sistem-belajar" element={<Navigate to="/gamification" replace />} />
+        <Route path="/misi" element={<Navigate to="/gamification" replace />} />
+
+        {/* Fitur 1: Pusat Fokus Pomodoro & Soundscapes */}
+        <Route
+          path="/pomodoro"
+          element={<PomodoroPage currentUser={currentUser} tasks={tasks} onLogout={handleLogout} />}
+        />
+        <Route path="/fokus" element={<Navigate to="/pomodoro" replace />} />
+
+        {/* Fitur 2: Pengorganisasian Akademik & Kalkulator IPK */}
+        <Route
+          path="/academic"
+          element={<AcademicPage currentUser={currentUser} tasks={tasks} onLogout={handleLogout} />}
+        />
+        <Route path="/gpa" element={<Navigate to="/academic" replace />} />
+        <Route path="/akademik" element={<Navigate to="/academic" replace />} />
+
+        {/* Fitur 3: Kanban Board & Eisenhower Priority Matrix */}
+        <Route
+          path="/kanban"
+          element={
+            <TaskBoardPage
+              currentUser={currentUser}
+              tasks={tasks}
+              onTasksChange={setTasks}
+              onLogout={handleLogout}
+            />
+          }
+        />
+        <Route path="/matrix" element={<Navigate to="/kanban" replace />} />
+        <Route path="/papan-tugas" element={<Navigate to="/kanban" replace />} />
+
         {/* Halaman Login & Sign Up (Menyimpan JWT) */}
         <Route
           path="/login"
@@ -106,7 +157,7 @@ function App() {
           }
         />
 
-        {/* Halaman Tambah Tugas (Protected Route untuk User / Client & Admin) */}
+        {/* Halaman Tambah Tugas (Protected Route untuk Siswa/User & Admin) */}
         <Route
           path="/form"
           element={
@@ -130,10 +181,15 @@ function App() {
               <div className="not-found-card">
                 <h1>404</h1>
                 <h2>Halaman Tidak Ditemukan</h2>
-                <p>Sorry, the page you are looking for does not exist.</p>
-                <a href="#/" className="btn-action-primary">
-                  Kembali ke Beranda
-                </a>
+                <p>Maaf, halaman yang Anda tuju tidak tersedia atau tautan telah berpindah.</p>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '16px', flexWrap: 'wrap' }}>
+                  <a href="#/" className="btn-action-primary" style={{ textDecoration: 'none' }}>
+                    Kembali ke Beranda
+                  </a>
+                  <a href="#/courses" className="btn-action-secondary" style={{ textDecoration: 'none' }}>
+                    Lihat Katalog Kursus
+                  </a>
+                </div>
               </div>
             </div>
           }

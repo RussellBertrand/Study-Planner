@@ -1,203 +1,269 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { api } from "../api";
+import { getUserCourses } from "../utils/courseStorage";
 
-const INITIAL_FORM = {
-  title: "",
-  subject: "",
-  deadline: "",
-  priority: "Medium",
-};
-
-const SUBJECTS = [
+const PRESET_SUBJECTS = [
   "Deep Learning",
   "Visual Perception",
   "Web and Mobile Application Development",
   "Human-Computer Interaction",
-  "Data Communication and Computer Network Security",
+  "Data Communication & Network Security",
   "Christian Faith and Ethics",
 ];
 
 export default function FormPage({ onAddTask, currentUser, onLogout }) {
-  const [formData, setFormData] = useState(INITIAL_FORM);
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    title: "",
+    subjectSelect: "",
+    customSubject: "",
+    deadline: "",
+    priority: "Medium",
+  });
+
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState("");
+
+  // Batasan minimal deadline adalah hari ini (YYYY-MM-DD)
+  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+
+  // Daftar mata kuliah dinamis dari CourseHub + preset
+  const allSubjects = useMemo(() => {
+    const userCourses = getUserCourses(currentUser?.id).map((c) => c.name);
+    const combined = Array.from(new Set([...userCourses, ...PRESET_SUBJECTS]));
+    return [...combined, "Lainnya (Tulis Sendiri)"];
+  }, [currentUser?.id]);
+
+  const validateField = (name, value) => {
+    let error = "";
+    if (name === "title" && !value.trim()) {
+      error = "Judul tugas wajib diisi.";
+    }
+    if (name === "deadline" && !value) {
+      error = "Tenggat waktu (deadline) wajib dipilih.";
+    }
+    return error;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    const errorMsg = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: errorMsg }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setServerError("");
 
-    if (formData.title.trim() === "" || formData.deadline === "") {
-      setError("Judul tugas dan deadline wajib diisi.");
+    const titleError = validateField("title", formData.title);
+    const deadlineError = validateField("deadline", formData.deadline);
+
+    if (titleError || deadlineError) {
+      setErrors({ title: titleError, deadline: deadlineError });
       return;
     }
 
+    const finalSubject =
+      formData.subjectSelect === "Lainnya (Tulis Sendiri)"
+        ? formData.customSubject.trim() || "Umum"
+        : formData.subjectSelect || "Umum";
+
     try {
       setSubmitting(true);
-      setError("");
-
       const payload = {
         title: formData.title.trim(),
-        subject: formData.subject || "Umum",
+        subject: finalSubject,
         deadline: formData.deadline,
         priority: formData.priority,
         status: "pending",
       };
 
       const res = await api.createTask(payload);
-      if (onAddTask) {
-        onAddTask(res.task);
-      }
-
-      setFormData(INITIAL_FORM);
+      if (onAddTask) onAddTask(res.task);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Gagal menyimpan tugas ke server backend.");
+      setServerError(err.message || "Gagal menyimpan tugas ke server backend.");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper min-h-screen bg-slate-50 flex flex-col font-sans antialiased text-slate-800">
       <Navbar currentUser={currentUser} onLogout={onLogout} />
 
-      <main className="form-page-main">
-        <div className="form-page-inner">
-          {/* Bagian Kiri: Judul, Deskripsi & Panduan */}
-          <div className="form-page-left">
-            <Link to="/dashboard" className="back-nav-link">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-              </svg>
-              Kembali ke Dashboard
-            </Link>
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        <div className="mb-6">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-500 hover:text-indigo-600 transition-colors"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Kembali ke Study Planner
+          </Link>
+        </div>
 
-            <h1 className="form-page-title">Tambah Tugas Baru</h1>
-            <p className="form-page-desc">
-              Kelola jadwal tugas akademis dan kursus Anda secara sistematis. Tambahkan detail tugas baru agar tersimpan di database backend.
-            </p>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Kolom Kiri: Header & Panduan Visual */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="space-y-2">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-600">
+                Formulir Akademis
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight font-display">
+                Jadwalkan Tugas Belajar Baru
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                Tuliskan target penugasan modul atau mata kuliah secara rinci agar sistem Study Planner dapat menyusun prioritas dan kalender belajar Anda secara sistematis.
+              </p>
+            </div>
 
-            <div className="form-tips">
-              <h3 className="form-tips-title">Tips Manajemen Tugas</h3>
-              <ul className="form-tips-list">
-                <li>Bagi tugas besar menjadi beberapa sub-tugas kecil yang lebih mudah dikerjakan.</li>
-                <li>Tetapkan prioritas tinggi untuk tugas yang mendekati deadline atau berbobot nilai besar.</li>
-                <li>Gunakan deskripsi judul yang spesifik agar memudahkan pemantauan progres belajar Anda.</li>
-                <li>Periksa dashboard secara berkala untuk memantau sisa waktu pengerjaan tugas.</li>
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+              <h3 className="font-semibold text-slate-800 text-xs sm:text-sm flex items-center gap-2">
+                <span className="text-indigo-600">💡</span> Tips Manajemen Waktu Efektif:
+              </h3>
+              <ul className="text-xs text-slate-500 space-y-2.5 leading-normal">
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-500 font-bold">•</span>
+                  Prioritaskan tugas berbobot besar atau yang mendekati tenggat akhir 48 jam.
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-500 font-bold">•</span>
+                  Pecah tugas besar menjadi bagian-bagian terukur (misal: Riset Bahan, Implementasi Kode, Pengujian).
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-500 font-bold">•</span>
+                  Periksa Study Planner secara berkala untuk memantau status penyelesaian.
+                </li>
               </ul>
             </div>
           </div>
 
-          {/* Bagian Kanan: Form Card */}
-          <div className="form-page-right">
-            {error && (
-              <div className="form-alert-error" role="alert" style={{ marginBottom: "1rem" }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          {/* Kolom Kanan: Card Form */}
+          <div className="lg:col-span-7 bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+            {serverError && (
+              <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                <span>{error}</span>
+                <span>{serverError}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="task-form" noValidate>
+            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
               {/* Judul Tugas */}
-              <div className="form-field">
-                <label htmlFor="title" className="form-label">
-                  Judul tugas <span className="required-mark">*</span>
+              <div className="space-y-1.5">
+                <label htmlFor="title" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Judul Tugas <span className="text-rose-500">*</span>
                 </label>
                 <input
                   id="title"
                   name="title"
                   type="text"
-                  className="form-input"
-                  placeholder="Contoh: Laporan praktikum CNN"
+                  placeholder="Contoh: Implementasi Residual Network (ResNet)"
                   value={formData.title}
                   onChange={handleChange}
                   disabled={submitting}
+                  className={`w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl border bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 transition-all ${
+                    errors.title
+                      ? "border-rose-400 focus:ring-rose-200"
+                      : "border-slate-200 focus:ring-indigo-100 focus:border-indigo-500"
+                  }`}
                 />
-                <span className="form-field-hint">Tuliskan nama tugas atau aktivitas belajar Anda dengan jelas.</span>
+                {errors.title && <p className="text-xs text-rose-600 font-medium">{errors.title}</p>}
               </div>
 
-              {/* Mata Kuliah */}
-              <div className="form-field">
-                <label htmlFor="subject" className="form-label">Mata kuliah</label>
-                <div className="select-wrap">
-                  <select
-                    id="subject"
-                    name="subject"
-                    className="form-select"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    disabled={submitting}
-                  >
-                    <option value="">-- Pilih mata kuliah --</option>
-                    {SUBJECTS.map((subject) => (
-                      <option key={subject} value={subject}>
-                        {subject}
-                      </option>
-                    ))}
-                  </select>
-                  <svg className="select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </div>
-                <span className="form-field-hint">Pilih mata kuliah terkait, atau kosongkan untuk tugas umum.</span>
-              </div>
-
-              {/* Deadline */}
-              <div className="form-field">
-                <label htmlFor="deadline" className="form-label">
-                  Deadline <span className="required-mark">*</span>
+              {/* Mata Kuliah Dropdown & Custom Field */}
+              <div className="space-y-1.5">
+                <label htmlFor="subjectSelect" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Mata Kuliah / Topik
                 </label>
-                <input
-                  id="deadline"
-                  name="deadline"
-                  type="date"
-                  className="form-input"
-                  value={formData.deadline}
+                <select
+                  id="subjectSelect"
+                  name="subjectSelect"
+                  value={formData.subjectSelect}
                   onChange={handleChange}
                   disabled={submitting}
-                />
-                <span className="form-field-hint">Tenggat waktu akhir penyelesaian tugas.</span>
+                  className="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 transition-all"
+                >
+                  <option value="">-- Pilih Mata Kuliah Terdaftar --</option>
+                  {allSubjects.map((sub) => (
+                    <option key={sub} value={sub}>{sub}</option>
+                  ))}
+                </select>
+
+                {formData.subjectSelect === "Lainnya (Tulis Sendiri)" && (
+                  <input
+                    type="text"
+                    name="customSubject"
+                    placeholder="Ketikkan nama mata kuliah/kategori Anda..."
+                    value={formData.customSubject}
+                    onChange={handleChange}
+                    className="w-full mt-2 px-4 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500"
+                  />
+                )}
               </div>
 
-              {/* Prioritas */}
-              <div className="form-field">
-                <label htmlFor="priority" className="form-label">Tingkat Prioritas</label>
-                <div className="select-wrap">
+              {/* Deadline & Prioritas (2 Kolom) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label htmlFor="deadline" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Tenggat Waktu <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    id="deadline"
+                    name="deadline"
+                    type="date"
+                    min={todayStr}
+                    value={formData.deadline}
+                    onChange={handleChange}
+                    disabled={submitting}
+                    className={`w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl border bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 transition-all ${
+                      errors.deadline
+                        ? "border-rose-400 focus:ring-rose-200"
+                        : "border-slate-200 focus:ring-indigo-100 focus:border-indigo-500"
+                    }`}
+                  />
+                  {errors.deadline && <p className="text-xs text-rose-600 font-medium">{errors.deadline}</p>}
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="priority" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Tingkat Prioritas
+                  </label>
                   <select
                     id="priority"
                     name="priority"
-                    className="form-select"
                     value={formData.priority}
                     onChange={handleChange}
                     disabled={submitting}
+                    className="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 transition-all"
                   >
-                    <option value="High">Tinggi (High) 🔥</option>
-                    <option value="Medium">Sedang (Medium) ⚡</option>
-                    <option value="Low">Rendah (Low) 🌱</option>
+                    <option value="High">🔥 Tinggi (High)</option>
+                    <option value="Medium">⚡ Sedang (Medium)</option>
+                    <option value="Low">🌱 Rendah (Low)</option>
                   </select>
-                  <svg className="select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
                 </div>
-                <span className="form-field-hint">Tentukan urgensi tugas ini.</span>
               </div>
 
-              <button type="submit" className="btn-action-primary" disabled={submitting} style={{ marginTop: "1rem", width: "100%" }}>
-                {submitting ? "Menyimpan ke Database..." : "Simpan Tugas"}
-              </button>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm text-white bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] disabled:opacity-60 shadow-sm transition-all"
+                >
+                  {submitting ? "Menyimpan ke Database..." : "Simpan Tugas ke Jadwal"}
+                </button>
+              </div>
             </form>
           </div>
         </div>

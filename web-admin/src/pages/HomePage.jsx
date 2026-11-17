@@ -97,7 +97,7 @@ export default function HomePage({ currentUser, onLogout }) {
                   <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
                 </svg>
               </button>
-              <a href="#courses" className="btn-cta-outline">Lihat Katalog Kursus</a>
+              <Link to="/courses" className="btn-cta-outline">Lihat Katalog Kursus</Link>
             </div>
 
             <div className="hero-stats-row">

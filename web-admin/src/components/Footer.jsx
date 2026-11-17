@@ -17,10 +17,10 @@ export default function Footer() {
               Kuasai skill baru tanpa ribet dan bangun portofolio impianmu.
             </p>
             <div className="social-links">
-              <a href="#instagram" className="social-icon" aria-label="Instagram">📸</a>
-              <a href="#youtube" className="social-icon" aria-label="YouTube">▶️</a>
-              <a href="#discord" className="social-icon" aria-label="Discord">💬</a>
-              <a href="#linkedin" className="social-icon" aria-label="LinkedIn">💼</a>
+              <span className="social-icon" title="Instagram">📸</span>
+              <span className="social-icon" title="YouTube">▶️</span>
+              <span className="social-icon" title="Discord">💬</span>
+              <span className="social-icon" title="LinkedIn">💼</span>
             </div>
           </div>
 
@@ -28,30 +28,30 @@ export default function Footer() {
           <div className="footer-nav-group">
             <h4 className="footer-heading">Jelajahi Belajar</h4>
             <ul className="footer-links">
-              <li><a href="#courses">Katalog Kursus Populer</a></li>
-              <li><a href="#categories">Pilihan Kategori Skill</a></li>
-              <li><a href="#gamification">Misi & Streak Belajar</a></li>
-              <li><Link to="/dashboard">Perencana Belajar (Dashboard)</Link></li>
+              <li><Link to="/courses">Katalog Kursus Populer</Link></li>
+              <li><Link to="/gamification">Sistem Belajar & Misi</Link></li>
+              <li><Link to="/kanban">Papan Alur Tugas (Kanban)</Link></li>
+              <li><Link to="/pomodoro">Pusat Fokus Pomodoro</Link></li>
             </ul>
           </div>
 
           <div className="footer-nav-group">
-            <h4 className="footer-heading">Karier & Komunitas</h4>
+            <h4 className="footer-heading">Akademik & Produktivitas</h4>
             <ul className="footer-links">
-              <li><a href="#mentors">Menjadi Mentor Tamu</a></li>
-              <li><a href="#community">Komunitas Discord Belajar</a></li>
-              <li><a href="#career">Pusat Karir & Magang</a></li>
-              <li><a href="#cert">Cek Sertifikat Digital</a></li>
+              <li><Link to="/academic">Hub Mata Kuliah & Jadwal</Link></li>
+              <li><Link to="/academic">Kalkulator Target IPK</Link></li>
+              <li><Link to="/kanban">Matriks Prioritas Eisenhower</Link></li>
+              <li><Link to="/dashboard">Study Planner Dashboard</Link></li>
             </ul>
           </div>
 
           <div className="footer-nav-group">
-            <h4 className="footer-heading">Bantuan & Legal</h4>
+            <h4 className="footer-heading">Bantuan & Informasi</h4>
             <ul className="footer-links">
-              <li><a href="#faq">Pusat Bantuan & FAQ</a></li>
-              <li><a href="#terms">Syarat & Ketentuan</a></li>
-              <li><a href="#privacy">Kebijakan Privasi</a></li>
-              <li><a href="#contact">Hubungi Kami</a></li>
+              <li><Link to="/">Beranda Utama</Link></li>
+              <li><Link to="/courses">Silabus Pembelajaran</Link></li>
+              <li><Link to="/dashboard">Status Progres Belajar</Link></li>
+              <li><Link to="/login">Pusat Akses Akun</Link></li>
             </ul>
           </div>
         </div>
