@@ -406,6 +406,295 @@ export const api = {
     }
   },
 
+  // Profile & Password Management
+  updateProfile: async (profileData) => {
+    try {
+      const res = await requestWithTimeout('/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify(profileData),
+      });
+      if (res.user) {
+        await setStoredUser(res.user);
+      }
+      return res;
+    } catch (err) {
+      const stored = (await getStoredUser()) || {};
+      const updated = { ...stored, ...profileData };
+      await setStoredUser(updated);
+      return { message: 'Profil berhasil diperbarui (Lokal).', user: updated };
+    }
+  },
+
+  changePassword: async (currentPassword, newPassword) => {
+    return await requestWithTimeout('/auth/password', {
+      method: 'PUT',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  },
+
+  // Schedules API (Class & Study Calendar)
+  getSchedules: async (day) => {
+    try {
+      const query = day ? `?day=${encodeURIComponent(day)}` : '';
+      return await requestWithTimeout(`/schedules${query}`, {
+        method: 'GET',
+      });
+    } catch (err) {
+      const stored = await getStoredUser();
+      const key = `@study_planner_schedules_${stored?.id || 'guest'}`;
+      let list = [];
+      try {
+        const raw = await AsyncStorage.getItem(key);
+        list = raw ? JSON.parse(raw) : [
+          {
+            id: 201,
+            user_id: stored?.id || 2,
+            title: 'Kuliah Pemrograman Web & Mobile',
+            subject: 'Web and Mobile Application Development',
+            day_of_week: 'Senin',
+            start_time: '08:00',
+            end_time: '10:30',
+            room: 'Lab Komputer 3',
+            lecturer: 'Dr. Hendra Gunawan, S.Kom., M.T.',
+            notes: 'Bawa laptop dengan Node.js dan VS Code terpasang',
+          },
+          {
+            id: 202,
+            user_id: stored?.id || 2,
+            title: 'Kuliah Interaksi Manusia dan Komputer',
+            subject: 'Human-Computer Interaction',
+            day_of_week: 'Rabu',
+            start_time: '10:00',
+            end_time: '12:00',
+            room: 'Gedung F R.402',
+            lecturer: 'Prof. Rina Suryani, M.Sc.',
+            notes: 'Presentasi mockup Figma kelompok',
+          },
+          {
+            id: 203,
+            user_id: stored?.id || 2,
+            title: 'Praktikum Deep Learning & CNN',
+            subject: 'Deep Learning',
+            day_of_week: 'Kamis',
+            start_time: '13:00',
+            end_time: '15:30',
+            room: 'Lab AI & Robotika',
+            lecturer: 'Ahmad Fauzi, Ph.D.',
+            notes: 'Evaluasi model training PyTorch',
+          },
+        ];
+      } catch (e) {}
+
+      if (day && day !== 'ALL') {
+        list = list.filter((s) => s.day_of_week === day);
+      }
+      return { schedules: list };
+    }
+  },
+
+  createSchedule: async (scheduleData) => {
+    try {
+      return await requestWithTimeout('/schedules', {
+        method: 'POST',
+        body: JSON.stringify(scheduleData),
+      });
+    } catch (err) {
+      const stored = await getStoredUser();
+      const key = `@study_planner_schedules_${stored?.id || 'guest'}`;
+      const raw = await AsyncStorage.getItem(key);
+      const list = raw ? JSON.parse(raw) : [];
+      const newSchedule = {
+        id: Date.now(),
+        user_id: stored?.id || 1,
+        ...scheduleData,
+        created_at: new Date().toISOString(),
+      };
+      const updated = [...list, newSchedule];
+      await AsyncStorage.setItem(key, JSON.stringify(updated));
+      return { message: 'Jadwal berhasil ditambahkan.', schedule: newSchedule };
+    }
+  },
+
+  updateSchedule: async (id, scheduleData) => {
+    try {
+      return await requestWithTimeout(`/schedules/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(scheduleData),
+      });
+    } catch (err) {
+      const stored = await getStoredUser();
+      const key = `@study_planner_schedules_${stored?.id || 'guest'}`;
+      const raw = await AsyncStorage.getItem(key);
+      const list = raw ? JSON.parse(raw) : [];
+      const updated = list.map((s) =>
+        String(s.id) === String(id) ? { ...s, ...scheduleData } : s
+      );
+      await AsyncStorage.setItem(key, JSON.stringify(updated));
+      const schedule = updated.find((s) => String(s.id) === String(id));
+      return { message: 'Jadwal berhasil diperbarui.', schedule };
+    }
+  },
+
+  deleteSchedule: async (id) => {
+    try {
+      return await requestWithTimeout(`/schedules/${id}`, {
+        method: 'DELETE',
+      });
+    } catch (err) {
+      const stored = await getStoredUser();
+      const key = `@study_planner_schedules_${stored?.id || 'guest'}`;
+      const raw = await AsyncStorage.getItem(key);
+      const list = raw ? JSON.parse(raw) : [];
+      const filtered = list.filter((s) => String(s.id) !== String(id));
+      await AsyncStorage.setItem(key, JSON.stringify(filtered));
+      return { message: 'Jadwal berhasil dihapus.' };
+    }
+  },
+
+  // Admin Management API
+  getAdminUsers: async () => {
+    try {
+      return await requestWithTimeout('/admin/users', {
+        method: 'GET',
+      });
+    } catch (err) {
+      const localUsers = await getLocalUsers();
+      const all = [...DEMO_USERS, ...localUsers].map((u) => ({
+        ...u,
+        total_tasks: 4,
+        completed_tasks: 1,
+        in_progress_tasks: 1,
+        pending_tasks: 2,
+      }));
+      return { users: all };
+    }
+  },
+
+  getAdminStats: async () => {
+    try {
+      return await requestWithTimeout('/admin/stats', {
+        method: 'GET',
+      });
+    } catch (err) {
+      return {
+        stats: {
+          totalUsers: 3,
+          activeStudents: 2,
+          totalTasks: 8,
+          completedTasks: 3,
+          completionRate: 38,
+        },
+      };
+    }
+  },
+
+  deleteAdminUser: async (id) => {
+    return await requestWithTimeout(`/admin/users/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // StudyMate AI Chatbot API
+  getAiHistory: async () => {
+    try {
+      return await requestWithTimeout('/ai/history', {
+        method: 'GET',
+      });
+    } catch (err) {
+      const stored = await getStoredUser();
+      const key = `@study_planner_chat_${stored?.id || 'guest'}`;
+      const raw = await AsyncStorage.getItem(key);
+      return { history: raw ? JSON.parse(raw) : [] };
+    }
+  },
+
+  clearAiHistory: async () => {
+    try {
+      return await requestWithTimeout('/ai/history', {
+        method: 'DELETE',
+      });
+    } catch (err) {
+      const stored = await getStoredUser();
+      const key = `@study_planner_chat_${stored?.id || 'guest'}`;
+      await AsyncStorage.removeItem(key);
+      return { message: 'Riwayat chat dibersihkan.' };
+    }
+  },
+
+  sendAiChat: async (message) => {
+    try {
+      return await requestWithTimeout('/ai/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message }),
+      });
+    } catch (err) {
+      const stored = (await getStoredUser()) || { name: 'Siswa' };
+      const tasks = await getLocalTasks(stored.id);
+      const lower = message.toLowerCase();
+
+      let reply = `Halo ${stored.name}! Saya StudyMate AI dalam mode offline.`;
+      let actionProposal = null;
+
+      if (lower.includes('jadwal') || lower.includes('kuliah')) {
+        reply = `🗓️ **Jadwal Kuliah Anda:**\n• **Senin** (08:00 - 10:30): Pemrograman Web & Mobile (Lab 3)\n• **Rabu** (10:00 - 12:00): Interaksi Manusia & Komputer (R.402)\n• **Kamis** (13:00 - 15:30): Deep Learning (Lab AI)\n\nIngin menambah atau mengedit jadwal perkuliahan?`;
+      } else if (lower.includes('tugas') || lower.includes('mendesak') || lower.includes('prioritas')) {
+        const active = tasks.filter((t) => t.status !== 'completed');
+        reply = `📋 **Rekomendasi Prioritas Tugas:**\n\n` +
+          (active.length > 0
+            ? active.map((t, idx) => `${idx + 1}. **${t.title}** [${t.priority}] - Deadline: ${t.deadline}`).join('\n')
+            : 'Tidak ada tugas yang tertunda. Bagus sekali, semua tugas sudah tuntas!');
+      } else if (lower.includes('buatkan tugas') || lower.includes('tambah tugas')) {
+        const titleMatch = message.match(/(?:buatkan|tambah)\s+tugas\s+([^,.\n]+)/i);
+        const taskTitle = titleMatch ? titleMatch[1].trim() : 'Materi Belajar Baru';
+        actionProposal = {
+          type: 'create_task',
+          data: {
+            title: taskTitle,
+            subject: 'Umum',
+            deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            priority: 'Medium',
+            status: 'pending',
+          },
+        };
+        reply = `Saya telah menyiapkan proposal pembuatan tugas baru: **"${taskTitle}"**.\n\nKetuk tombol konfirmasi di bawah untuk menyimpannya ke daftar tugas Anda!`;
+      } else {
+        reply = `Halo ${stored.name}! Saya StudyMate AI, asisten belajar cerdas Anda di Study Planner mobile. Anda bisa menanyakan prioritas tugas, jadwal kuliah, atau tips fokus belajar. Ada yang bisa saya bantu? 🚀`;
+      }
+
+      const key = `@study_planner_chat_${stored?.id || 'guest'}`;
+      const raw = await AsyncStorage.getItem(key);
+      const chat = raw ? JSON.parse(raw) : [];
+      chat.push({ id: Date.now(), sender: 'user', message });
+      chat.push({ id: Date.now() + 1, sender: 'assistant', message: reply, action_data: actionProposal });
+      await AsyncStorage.setItem(key, JSON.stringify(chat));
+
+      return { reply, actionProposal };
+    }
+  },
+
+  confirmAiAction: async (actionType, actionData) => {
+    try {
+      return await requestWithTimeout('/ai/action/confirm', {
+        method: 'POST',
+        body: JSON.stringify({ actionType, actionData }),
+      });
+    } catch (err) {
+      if (actionType === 'create_task') {
+        const res = await api.createTask(actionData);
+        return { success: true, message: `Tugas "${actionData.title}" berhasil dibuat!`, data: res.task };
+      }
+      if (actionType === 'update_task_status') {
+        const res = await api.updateTask(actionData.id, { status: actionData.status });
+        return { success: true, message: `Status tugas diperbarui ke "${actionData.status}"!`, data: res.task };
+      }
+      if (actionType === 'create_schedule') {
+        const res = await api.createSchedule(actionData);
+        return { success: true, message: `Jadwal "${actionData.title}" berhasil ditambahkan!`, data: res.schedule };
+      }
+      throw err;
+    }
+  },
+
   // Courses Enrollment Storage
   getEnrolledCourses: async (userId) => {
     try {

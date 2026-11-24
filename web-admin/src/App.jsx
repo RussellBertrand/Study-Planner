@@ -12,6 +12,10 @@ import GamificationPage from './pages/GamificationPage';
 import PomodoroPage from './pages/PomodoroPage';
 import AcademicPage from './pages/AcademicPage';
 import TaskBoardPage from './pages/TaskBoardPage';
+import SchedulePage from './pages/SchedulePage';
+import ProfilePage from './pages/ProfilePage';
+import AdminPage from './pages/AdminPage';
+import StudyMateChat from './components/chat/StudyMateChat';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(() => getStoredUser());
@@ -189,6 +193,51 @@ function App() {
           }
         />
 
+        {/* Halaman Jadwal Kuliah & Belajar */}
+        <Route
+          path="/schedule"
+          element={
+            currentUser ? (
+              <SchedulePage currentUser={currentUser} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route path="/jadwal" element={<Navigate to="/schedule" replace />} />
+
+        {/* Halaman Profil & Pengaturan Kata Sandi */}
+        <Route
+          path="/profile"
+          element={
+            currentUser ? (
+              <ProfilePage
+                currentUser={currentUser}
+                onLogout={handleLogout}
+                onUserUpdate={(updated) => {
+                  setCurrentUser(updated);
+                  setStoredUser(updated);
+                }}
+              />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route path="/profil" element={<Navigate to="/profile" replace />} />
+
+        {/* Halaman Khusus Mentor / Admin Control Panel */}
+        <Route
+          path="/admin"
+          element={
+            currentUser ? (
+              <AdminPage currentUser={currentUser} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
         {/* Halaman 404 */}
         <Route
           path="*"
@@ -211,6 +260,11 @@ function App() {
           }
         />
       </Routes>
+
+      {/* Floating StudyMate AI Widget (Tersedia secara global di seluruh halaman saat user aktif) */}
+      {currentUser && (
+        <StudyMateChat currentUser={currentUser} onTasksChange={setTasks} />
+      )}
     </HashRouter>
   );
 }

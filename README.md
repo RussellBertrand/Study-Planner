@@ -138,22 +138,51 @@ Database sudah dilengkapi akun bawaan (*seeded data*):
 
 Backend berjalan di `http://localhost:3000` dengan endpoint berikut:
 
-### Autentikasi (`/api/auth`)
+### Autentikasi & Profil (`/api/auth`)
 - `POST /api/auth/register` — Pendaftaran pengguna baru (`user` atau `admin`)
 - `POST /api/auth/login` — Login pengguna & menghasilkan token JWT
 - `GET /api/auth/me` — Mengambil data profil pengguna yang sedang login (*Auth Bearer*)
+- `PUT /api/auth/profile` — Mengupdate profil (nama, bio, avatar)
+- `PUT /api/auth/password` — Mengubah kata sandi pengguna dengan verifikasi bcrypt
 
 ### Manajemen Tugas / Tasks (`/api/tasks`)
 - `GET /api/tasks` — Mengambil daftar tugas (Admin: semua tugas; User: tugas pribadi)
 - `GET /api/tasks/:id` — Mengambil detail satu tugas
-- `POST /api/tasks` — Menambah tugas baru (judul, mata kuliah, deadline, prioritas)
-- `PUT /api/tasks/:id` — Mengupdate data tugas atau status (`pending` / `completed`)
+- `POST /api/tasks` — Menambah tugas baru (judul, mata kuliah, deadline, prioritas, status)
+- `PUT /api/tasks/:id` — Mengupdate data tugas atau status (`pending`, `in_progress`, `completed`)
 - `DELETE /api/tasks/:id` — Menghapus tugas dari sistem
+
+### Manajemen Jadwal Perkuliahan (`/api/schedules`)
+- `GET /api/schedules` — Mengambil jadwal mingguan (opsional filter `?day=Senin`)
+- `POST /api/schedules` — Menambahkan agenda perkuliahan baru
+- `PUT /api/schedules/:id` — Mengupdate jadwal perkuliahan
+- `DELETE /api/schedules/:id` — Menghapus jadwal
+
+### Admin Control Panel (`/api/admin`)
+- `GET /api/admin/users` — Mengambil daftar pengguna dan metrik pengerjaan tugas siswa (khusus `admin`)
+- `GET /api/admin/stats` — Mengambil statistik platform menyeluruh (khusus `admin`)
+- `DELETE /api/admin/users/:id` — Menghapus pengguna dari sistem (khusus `admin`)
+
+### StudyMate AI Assistant (`/api/ai`)
+- `POST /api/ai/chat` — Berinteraksi dengan asisten AI kontekstual real-time (menganalisis tugas aktual, deadline mendesak, jadwal kuliah)
+- `POST /api/ai/action/confirm` — Mengeksekusi proposal aksi cerdas (tambah tugas/jadwal) setelah konfirmasi pengguna
+- `GET /api/ai/history` — Mengambil riwayat percakapan AI
+- `DELETE /api/ai/history` — Membersihkan riwayat chat pengguna
+
+---
+
+## 🤖 StudyMate AI — Fitur Asisten Cerdas
+
+StudyMate AI adalah asisten belajar cerdas yang hadir di Web dan Mobile:
+1. **Analisis Kontekstual Real-time:** Menganalisis data tugas aktif, deadline mendesak (<= 3 hari), dan jadwal perkuliahan secara langsung dari database pengguna.
+2. **Actionable Proposals (Human-in-the-Loop):** AI dapat mengusulkan pembuatan tugas atau pembaruan status, dan **hanya akan mengeksekusi** setelah pengguna menekan tombol *"Konfirmasi"* secara eksplisit.
+3. **Dual Intelligence Engine:** Mendukung OpenAI API (`OPENAI_API_KEY`) atau mesin inferensi heuristik kontekstual bawaan (*zero extra cost / offline resilient*).
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend Web Admin:** React 18, Vite, React Router 6, Vanilla CSS Modern (Responsive, Glassmorphism, CSS Tokens)
-- **Backend API:** Node.js, Express.js, SQLite3, JSON Web Tokens (JWT), BcryptJS, CORS, Dotenv
+- **Frontend Web Admin:** React 18, Vite, React Router 6, Tailwind CSS & Vanilla Modern Tokens, StudyMate AI Widget
+- **Mobile Application:** React Native, Expo SDK 58, React Navigation (Bottom Tabs), AsyncStorage, StudyMate AI Mobile Modal
+- **Backend API:** Node.js, Express.js, SQLite3, JSON Web Tokens (JWT), BcryptJS, CORS, Dotenv, Contextual AI Engine
 - **Version Control:** Git & GitHub

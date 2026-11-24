@@ -44,9 +44,13 @@ export default function Navbar({ currentUser, onLogout }) {
     { path: '/courses', label: 'Katalog Kursus' },
     { path: '/gamification', label: 'Sistem Belajar' },
     { path: '/dashboard', label: 'Study Planner' },
+    { path: '/schedule', label: 'Jadwal' },
     { path: '/kanban', label: 'Papan Tugas' },
     { path: '/pomodoro', label: 'Fokus' },
     { path: '/academic', label: 'Akademik' },
+    ...(currentUser && currentUser.role === 'admin'
+      ? [{ path: '/admin', label: '🛡️ Admin' }]
+      : []),
   ];
 
   return (
@@ -134,19 +138,23 @@ export default function Navbar({ currentUser, onLogout }) {
 
             {currentUser ? (
               <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-800">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-2.5 group/user p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors"
+                  title="Profil & Pengaturan"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs group-hover/user:scale-105 transition-transform">
                     {(currentUser.name || currentUser.username).charAt(0).toUpperCase()}
                   </div>
                   <div className="text-left hidden xl:block">
-                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight truncate max-w-[120px]">
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight truncate max-w-[120px] group-hover/user:text-indigo-600 dark:group-hover/user:text-indigo-400">
                       {currentUser.name || currentUser.username}
                     </p>
                     <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block">
                       {currentUser.role === 'admin' ? 'Mentor' : 'Mahasiswa'}
                     </span>
                   </div>
-                </div>
+                </Link>
 
                 <button
                   onClick={handleLogout}
@@ -248,19 +256,26 @@ export default function Navbar({ currentUser, onLogout }) {
 
           <div className="pt-3 mt-2 border-t border-slate-100 dark:border-slate-800">
             {currentUser ? (
-              <div className="flex items-center justify-between px-3 py-2">
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                  {currentUser.name || currentUser.username}
-                </span>
-                <button
-                  onClick={() => {
-                    setMobileOpen(false);
-                    handleLogout();
-                  }}
-                  className="text-xs font-semibold text-rose-600 hover:underline"
+              <div className="space-y-2">
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200"
                 >
-                  Keluar
-                </button>
+                  <span>👤 {currentUser.name || currentUser.username} (Profil)</span>
+                  <span className="text-[10px] text-indigo-600 font-semibold uppercase">{currentUser.role}</span>
+                </Link>
+                <div className="flex items-center justify-end px-3">
+                  <button
+                    onClick={() => {
+                      setMobileOpen(false);
+                      handleLogout();
+                    }}
+                    className="text-xs font-semibold text-rose-600 hover:underline"
+                  >
+                    Keluar dari Akun
+                  </button>
+                </div>
               </div>
             ) : (
               <Link

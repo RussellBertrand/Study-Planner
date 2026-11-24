@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import { initDb } from './db.js';
 import authRoutes from './authRoutes.js';
 import taskRoutes from './taskRoutes.js';
+import scheduleRoutes from './scheduleRoutes.js';
+import adminRoutes from './adminRoutes.js';
+import aiRoutes from './aiRoutes.js';
 
 dotenv.config();
 
@@ -31,11 +34,14 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.json({
     status: 'ok',
-    system: 'Study Planner REST API',
-    version: '1.0.0',
+    system: 'Study Planner Unified Backend & AI API',
+    version: '2.0.0',
     endpoints: {
       auth: '/api/auth',
       tasks: '/api/tasks',
+      schedules: '/api/schedules',
+      admin: '/api/admin',
+      ai: '/api/ai',
     },
   });
 });
@@ -43,6 +49,9 @@ app.get('/', (req, res) => {
 // Daftarkan Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/schedules', scheduleRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
