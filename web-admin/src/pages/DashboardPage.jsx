@@ -61,7 +61,12 @@ export default function DashboardPage({ currentUser, tasks = [], onTasksChange, 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       const matchPriority = priorityFilter === 'ALL' || task.priority?.toUpperCase() === priorityFilter;
-      const matchStatus = statusFilter === 'ALL' || (task.status || 'pending') === statusFilter;
+      const matchStatus =
+        statusFilter === 'ALL'
+          ? true
+          : statusFilter === 'pending'
+          ? task.status !== 'completed'
+          : task.status === 'completed';
       const matchSearch =
         task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (task.subject && task.subject.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -77,7 +82,7 @@ export default function DashboardPage({ currentUser, tasks = [], onTasksChange, 
       
       if (onTasksChange) {
         onTasksChange((prev) =>
-          prev.map((t) => (t.id === task.id ? { ...t, ...updated.task, status: nextStatus } : t))
+          prev.map((t) => (String(t.id) === String(task.id) ? { ...t, ...updated.task, status: nextStatus } : t))
         );
       }
 
@@ -102,7 +107,7 @@ export default function DashboardPage({ currentUser, tasks = [], onTasksChange, 
       setActionError('');
       await api.deleteTask(taskToDelete.id);
       if (onTasksChange) {
-        onTasksChange((prev) => prev.filter((t) => t.id !== taskToDelete.id));
+        onTasksChange((prev) => prev.filter((t) => String(t.id) !== String(taskToDelete.id)));
       }
       setTaskToDelete(null);
     } catch (err) {
@@ -115,7 +120,7 @@ export default function DashboardPage({ currentUser, tasks = [], onTasksChange, 
   const handleTaskSaved = (updatedTask) => {
     if (onTasksChange) {
       onTasksChange((prev) =>
-        prev.map((t) => (t.id === updatedTask.id ? { ...t, ...updatedTask } : t))
+        prev.map((t) => (String(t.id) === String(updatedTask.id) ? { ...t, ...updatedTask } : t))
       );
     }
   };

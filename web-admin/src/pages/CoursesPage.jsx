@@ -31,6 +31,10 @@ export default function CoursesPage({ currentUser, onLogout }) {
   }, [selectedCategory, searchQuery]);
 
   const handleEnroll = (course) => {
+    if (!currentUser) {
+      navigate('/login');
+      return;
+    }
     const updated = enrollCourse(currentUser?.id, course.id);
     setEnrolledIds(updated);
     awardXP(currentUser?.id, 50, `Pendaftaran kursus: ${course.title}`);

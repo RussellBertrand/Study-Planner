@@ -308,6 +308,7 @@ export const api = {
       const newTask = {
         id: Date.now(),
         user_id: stored?.id || 1,
+        user_name: stored?.name || stored?.username || 'Siswa',
         title: taskData.title,
         subject: taskData.subject,
         deadline: taskData.deadline,
@@ -330,10 +331,10 @@ export const api = {
       const stored = getStoredUser();
       const tasks = getLocalTasks(stored?.id);
       const updated = tasks.map((t) =>
-        t.id === Number(id) ? { ...t, ...taskData } : t
+        String(t.id) === String(id) ? { ...t, ...taskData } : t
       );
       saveLocalTasks(stored?.id, updated);
-      const task = updated.find((t) => t.id === Number(id));
+      const task = updated.find((t) => String(t.id) === String(id));
       return { message: 'Tugas berhasil diperbarui.', task };
     }
   },
@@ -346,7 +347,7 @@ export const api = {
     } catch (err) {
       const stored = getStoredUser();
       const tasks = getLocalTasks(stored?.id);
-      const filtered = tasks.filter((t) => t.id !== Number(id));
+      const filtered = tasks.filter((t) => String(t.id) !== String(id));
       saveLocalTasks(stored?.id, filtered);
       return { message: 'Tugas berhasil dihapus.' };
     }

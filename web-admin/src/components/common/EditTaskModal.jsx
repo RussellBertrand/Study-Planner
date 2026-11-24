@@ -132,6 +132,9 @@ export default function EditTaskModal({
                     {c.name} ({c.code})
                   </option>
                 ))}
+                {formData.subject && !courses.some((c) => c.name === formData.subject) && formData.subject !== 'Umum' && (
+                  <option value={formData.subject}>{formData.subject}</option>
+                )}
                 <option value="Umum">Umum / Lainnya</option>
               </select>
             </div>

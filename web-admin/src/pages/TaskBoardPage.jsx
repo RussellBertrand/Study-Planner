@@ -15,7 +15,7 @@ export default function TaskBoardPage({ currentUser, tasks = [], onTasksChange, 
       const updated = await api.updateTask(task.id, { status: nextStatus });
       if (onTasksChange) {
         onTasksChange((prev) =>
-          prev.map((t) => (t.id === task.id ? { ...t, status: nextStatus, ...updated.task } : t))
+          prev.map((t) => (String(t.id) === String(task.id) ? { ...t, status: nextStatus, ...updated.task } : t))
         );
       }
     } catch (err) {

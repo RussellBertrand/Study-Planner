@@ -23,7 +23,7 @@ export default function TaskKanban({ tasks = [], onTasksChange, isAdmin = false 
       }
       if (onTasksChange) {
         onTasksChange((prev) =>
-          prev.map((t) => (t.id === task.id ? { ...t, status: nextStatus, ...updated.task } : t))
+          prev.map((t) => (String(t.id) === String(task.id) ? { ...t, status: nextStatus, ...updated.task } : t))
         );
       }
     } catch (err) {
@@ -35,7 +35,7 @@ export default function TaskKanban({ tasks = [], onTasksChange, isAdmin = false 
       }
       if (onTasksChange) {
         onTasksChange((prev) =>
-          prev.map((t) => (t.id === task.id ? { ...t, status: nextStatus } : t))
+          prev.map((t) => (String(t.id) === String(task.id) ? { ...t, status: nextStatus } : t))
         );
       }
     } finally {

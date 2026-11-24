@@ -23,7 +23,7 @@ Sistem dirancang modular menjadi tiga komponen independen:
 Study-Planner/
 ├── web-admin/           # Web Frontend Admin & Dashboard (React + Vite)
 ├── backend/             # RESTful API Server (Node.js Express + SQLite + JWT Auth)
-├── mobile-app/          # Mobile Application (React Native + Expo) [Tahap Pengembangan]
+├── app/                 # Mobile Application (React Native + Expo SDK 58 untuk Android & iOS)
 ├── project-submission-guide.md # Panduan milestone Capstone UAS
 ├── .gitignore           # Mengabaikan node_modules, .env, database sqlite, & build dist
 └── README.md            # Dokumentasi proyek
@@ -83,8 +83,40 @@ npm run dev
 
 ---
 
-### 3. Mobile App (`mobile-app/`)
-*(Sedang dalam tahap pengembangan menggunakan React Native + Expo).*
+### 3. Menjalankan Aplikasi Mobile (`app/`)
+
+Aplikasi mobile dibangun menggunakan **React Native + Expo SDK 58**, mendukung penuh perangkat fisik Android maupun iOS via Expo Go.
+
+```bash
+# Buka terminal baru, masuk ke folder app
+cd app
+
+# Pasang dependensi
+npm install
+
+# Buat/sesuaikan file konfigurasi .env
+# Ganti dengan IP lokal laptop Anda (cek via 'ipconfig' di Windows atau 'ifconfig' di Mac/Linux)
+copy .env.example .env
+```
+
+Contoh konfigurasi `.env`:
+```env
+EXPO_PUBLIC_API_URL=http://192.168.1.100:3000/api
+```
+
+> ⚠️ **Penting untuk Expo Go di HP Fisik:**  
+> Jangan gunakan `localhost` karena pada HP fisik, `localhost` akan mengarah ke HP itu sendiri. Gunakan IP lokal laptop Anda dan pastikan HP serta laptop terhubung ke jaringan Wi-Fi yang sama.
+> 
+> *Catatan:* Aplikasi juga dilengkapi **Resilient Offline/Demo Mode** otomatis menggunakan AsyncStorage jika backend sedang offline.
+
+Jalankan Expo development server:
+```bash
+npx expo start
+```
+
+- **Android:** Buka aplikasi **Expo Go**, ketuk *"Scan QR code"*, dan pindai QR code yang tampil di terminal.
+- **iOS:** Buka aplikasi **Kamera bawaan**, arahkan ke QR code, lalu ketuk notifikasi untuk membuka di **Expo Go**.
+- **Web Preview:** Tekan tombol `w` di terminal untuk menjalankan versi web.
 
 ---
 

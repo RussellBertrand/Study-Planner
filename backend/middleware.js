@@ -12,7 +12,7 @@ export const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, secret, (err, user) => {
     if (err) {
-      return res.status(403).json({ message: 'Token tidak valid atau kedaluwarsa.' });
+      return res.status(401).json({ message: 'Token tidak valid atau kedaluwarsa.' });
     }
     req.user = user;
     next();

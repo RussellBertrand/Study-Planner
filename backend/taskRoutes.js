@@ -114,7 +114,13 @@ router.post('/', async (req, res) => {
       [assignedUserId, title, subject, deadline, priority, status]
     );
 
-    const createdTask = await dbGet('SELECT * FROM tasks WHERE id = ?', [result.lastID]);
+    const createdTask = await dbGet(
+      `SELECT t.*, u.name as user_name, u.username as user_username
+       FROM tasks t
+       JOIN users u ON t.user_id = u.id
+       WHERE t.id = ?`,
+      [result.lastID]
+    );
 
     return res.status(201).json({
       message: 'Tugas berhasil dibuat.',
@@ -147,8 +153,19 @@ router.put('/:id', async (req, res) => {
       return res.status(403).json({ message: 'Akses ditolak untuk mengedit tugas ini.' });
     }
 
-    const updatedTitle = title !== undefined ? title : existingTask.title;
-    const updatedSubject = subject !== undefined ? subject : existingTask.subject;
+    // Validasi prioritas dan status jika dikirim
+    if (priority !== undefined && !['High', 'Medium', 'Low'].includes(priority)) {
+      return res.status(400).json({ message: 'Prioritas harus salah satu dari: High, Medium, Low.' });
+    }
+    if (status !== undefined && !['pending', 'in_progress', 'completed'].includes(status)) {
+      return res.status(400).json({ message: 'Status harus salah satu dari: pending, in_progress, completed.' });
+    }
+    if (title !== undefined && !title.trim()) {
+      return res.status(400).json({ message: 'Judul tugas tidak boleh kosong.' });
+    }
+
+    const updatedTitle = title !== undefined ? title.trim() : existingTask.title;
+    const updatedSubject = subject !== undefined ? subject.trim() : existingTask.subject;
     const updatedDeadline = deadline !== undefined ? deadline : existingTask.deadline;
     const updatedPriority = priority !== undefined ? priority : existingTask.priority;
     const updatedStatus = status !== undefined ? status : existingTask.status;
@@ -160,7 +177,13 @@ router.put('/:id', async (req, res) => {
       [updatedTitle, updatedSubject, updatedDeadline, updatedPriority, updatedStatus, id]
     );
 
-    const updatedTask = await dbGet('SELECT * FROM tasks WHERE id = ?', [id]);
+    const updatedTask = await dbGet(
+      `SELECT t.*, u.name as user_name, u.username as user_username
+       FROM tasks t
+       JOIN users u ON t.user_id = u.id
+       WHERE t.id = ?`,
+      [id]
+    );
 
     return res.json({
       message: 'Tugas berhasil diperbarui.',

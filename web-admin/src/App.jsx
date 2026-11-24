@@ -98,14 +98,26 @@ function App() {
         {/* Fitur 1: Pusat Fokus Pomodoro & Soundscapes */}
         <Route
           path="/pomodoro"
-          element={<PomodoroPage currentUser={currentUser} tasks={tasks} onLogout={handleLogout} />}
+          element={
+            currentUser ? (
+              <PomodoroPage currentUser={currentUser} tasks={tasks} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
         />
         <Route path="/fokus" element={<Navigate to="/pomodoro" replace />} />
 
         {/* Fitur 2: Pengorganisasian Akademik & Kalkulator IPK */}
         <Route
           path="/academic"
-          element={<AcademicPage currentUser={currentUser} tasks={tasks} onLogout={handleLogout} />}
+          element={
+            currentUser ? (
+              <AcademicPage currentUser={currentUser} tasks={tasks} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
         />
         <Route path="/gpa" element={<Navigate to="/academic" replace />} />
         <Route path="/akademik" element={<Navigate to="/academic" replace />} />
@@ -114,12 +126,16 @@ function App() {
         <Route
           path="/kanban"
           element={
-            <TaskBoardPage
-              currentUser={currentUser}
-              tasks={tasks}
-              onTasksChange={setTasks}
-              onLogout={handleLogout}
-            />
+            currentUser ? (
+              <TaskBoardPage
+                currentUser={currentUser}
+                tasks={tasks}
+                onTasksChange={setTasks}
+                onLogout={handleLogout}
+              />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
         <Route path="/matrix" element={<Navigate to="/kanban" replace />} />

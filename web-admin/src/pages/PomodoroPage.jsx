@@ -59,7 +59,7 @@ export default function PomodoroPage({ currentUser, tasks = [], onTasksChange, o
         const updated = await api.updateTask(task.id, { status: 'in_progress' });
         if (onTasksChange) {
           onTasksChange((prev) =>
-            prev.map((t) => (t.id === task.id ? { ...t, status: 'in_progress', ...updated.task } : t))
+            prev.map((t) => (String(t.id) === String(task.id) ? { ...t, status: 'in_progress', ...updated.task } : t))
           );
         }
       } catch (err) {
